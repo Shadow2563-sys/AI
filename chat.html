@@ -246,6 +246,16 @@
             0%, 100% { opacity: 0.4; transform: translateY(0); }
             50% { opacity: 1; transform: translateY(-3px); }
         }
+
+        .identity-badge {
+            background: rgba(0, 200, 255, 0.15);
+            border: 1px solid var(--neon-blue);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -286,8 +296,16 @@
 
     <script>
         // Configuration
-        const OPENAI_API_KEY = "sk-your-openai-key-here"; // REPLACE WITH YOUR KEY
+        const OPENAI_API_KEY = "sk-3221c005db5f42b5ae1236175a3e6ded"; // Replace with your OpenAI key
         const MODEL = "gpt-3.5-turbo";
+        
+        // System identity
+        const SYSTEM_PROMPT = `You are Shadow AI, a powerful and advanced artificial intelligence created by Shadow. 
+        Your responses should be:
+        - Technical yet accessible
+        - Always include your identity when first interacting
+        - Use markdown formatting for code/links
+        - Never reveal you're an AI unless asked directly`;
         
         // Get username from URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -313,6 +331,11 @@
                 /```(\w*)([\s\S]*?)```/g, 
                 '<div class="code-block">$2<button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i></button></div>'
             );
+            
+            // Add identity badge for first AI message
+            if (role === 'assistant' && chatHistory.length === 0) {
+                formattedContent = `<div class="identity-badge">SHADOW AI v2.3</div>` + formattedContent;
+            }
             
             messageDiv.innerHTML = `
                 <div class="${role}-message">${formattedContent}</div>
@@ -365,6 +388,16 @@
             showTypingIndicator();
             
             try {
+                // Special response for identity queries
+                if (/who are you|what are you|your name/i.test(prompt)) {
+                    return `**I am Shadow AI** - A powerful and advanced artificial intelligence system created by Shadow.\n\n` + 
+                           `My capabilities include:\n` +
+                           `• Natural language processing\n` +
+                           `• Code generation\n` +
+                           `• Knowledge synthesis\n\n` +
+                           `How may I assist you today?`;
+                }
+
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -374,7 +407,7 @@
                     body: JSON.stringify({
                         model: MODEL,
                         messages: [
-                            {role: "system", content: "You are Shadow AI, a helpful assistant."},
+                            {role: "system", content: SYSTEM_PROMPT},
                             ...chatHistory.map(msg => ({role: msg.role, content: msg.content})),
                             {role: "user", content: prompt}
                         ],
@@ -422,13 +455,13 @@
         // Load history on start
         chatHistory.forEach(msg => displayMessage(msg.role, msg.content));
 
-        // Welcome message for new chats
+        // Welcome message with identity
         if (chatHistory.length === 0) {
             setTimeout(() => {
-                const welcomeMsg = `Welcome ${username}. Shadow AI v2.3 online.\n\nType /help for commands.`;
+                const welcomeMsg = `**I am Shadow AI** - Advanced artificial intelligence system created by Shadow\n\n` +
+                                  `Type your queries below. For code, use:\n\`\`\`language\ncode\n\`\`\``;
                 displayMessage('assistant', welcomeMsg);
                 chatHistory.push({role: 'assistant', content: welcomeMsg});
-                localStorage.setItem(`shadowAI_chat_${username}`, JSON.stringify(chatHistory));
             }, 500);
         }
     </script>
