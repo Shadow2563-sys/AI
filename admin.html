@@ -1,0 +1,513 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHADOW AI :: ADMIN DASHBOARD</title>
+    <style>
+        :root {
+            --neon-blue: #00f7ff;
+            --neon-pink: #ff00f7;
+            --matrix-green: #00ff2b;
+            --hacker-orange: #ff8c00;
+            --cyber-purple: #8a2be2;
+        }
+        
+        body {
+            margin: 0;
+            background: #000;
+            color: var(--neon-blue);
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(
+                    rgba(0, 247, 255, 0.03) 1px, 
+                    transparent 1px
+                );
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 100;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 247, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            animation: gridPulse 30s infinite alternate;
+        }
+
+        @keyframes gridPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        .data-stream {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(transparent 90%, rgba(0, 247, 255, 0.1) 100%);
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: rgba(0, 10, 20, 0.8);
+            border-bottom: 1px solid var(--neon-blue);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(0, 247, 255, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .terminal-header h1 {
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 0 10px var(--neon-blue),
+                0 0 20px rgba(0, 247, 255, 0.5);
+            position: relative;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-pill {
+            background: rgba(0, 247, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-pill::before {
+            content: "◉";
+            color: var(--matrix-green);
+            margin-right: 8px;
+            font-size: 0.6rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .terminal-panel {
+            background: rgba(0, 5, 10, 0.85);
+            border: 1px solid var(--neon-blue);
+            border-radius: 4px;
+            box-shadow: 
+                0 0 15px rgba(0, 247, 255, 0.2),
+                inset 0 0 10px rgba(0, 247, 255, 0.1);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px rgba(0, 247, 255, 0.5);
+        }
+
+        .user-activity {
+            grid-column: span 2;
+        }
+
+        .user-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: rgba(0, 20, 40, 0.5);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(0, 247, 255, 0.7);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 10px;
+            background: rgba(0, 247, 255, 0.1);
+            color: var(--neon-blue);
+            font-weight: 300;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 247, 255, 0.1);
+        }
+
+        .data-table tr:hover {
+            background: rgba(0, 247, 255, 0.05);
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-blue) transparent;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0, 247, 255, 0.1);
+            font-size: 0.85rem;
+            display: flex;
+        }
+
+        .log-timestamp {
+            color: rgba(0, 247, 255, 0.6);
+            min-width: 120px;
+        }
+
+        .log-message {
+            flex-grow: 1;
+        }
+
+        .log-error { color: #ff4d4d; }
+        .log-warning { color: var(--hacker-orange); }
+        .log-info { color: var(--neon-blue); }
+        .log-success { color: var(--matrix-green); }
+
+        .system-monitor {
+            height: 200px;
+            position: relative;
+        }
+
+        @media (max-width: 1200px) {
+            .user-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .user-activity {
+                grid-column: span 1;
+            }
+            .user-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="data-stream" id="dataStream"></div>
+    <div class="scanlines"></div>
+
+    <header class="terminal-header">
+        <h1>SHADOW AI :: ADMIN TERMINAL</h1>
+        <div class="header-stats">
+            <div class="stat-pill">SYSTEM ONLINE</div>
+            <div class="stat-pill" id="uptimeCounter">UPTIME: 00:00:00</div>
+            <button class="stat-pill" onclick="location.href='index.html'">LOGOUT</button>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <section class="terminal-panel user-activity">
+            <div class="panel-header">
+                <h2>USER ACTIVITY MONITOR</h2>
+                <div class="icon">👥</div>
+            </div>
+            
+            <div class="user-metrics">
+                <div class="metric-card">
+                    <div class="metric-label">TOTAL USERS</div>
+                    <div class="metric-value" id="totalUsers">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">ACTIVE TODAY</div>
+                    <div class="metric-value" id="activeUsers">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">NEW (24H)</div>
+                    <div class="metric-value" id="newUsers">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">AVG SESSION</div>
+                    <div class="metric-value" id="avgSession">0m</div>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>USERNAME</th>
+                        <th>LAST ACTIVE</th>
+                        <th>SESSIONS</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <section class="terminal-panel">
+            <div class="panel-header">
+                <h2>SYSTEM HEALTH</h2>
+                <div class="icon">❤️</div>
+            </div>
+            
+            <div class="system-monitor">
+                <div class="monitor-graph" id="cpuGraph"></div>
+            </div>
+            
+            <div class="system-stats">
+                <table class="data-table">
+                    <tr>
+                        <td>CPU LOAD</td>
+                        <td id="cpuLoad">0%</td>
+                    </tr>
+                    <tr>
+                        <td>MEMORY USAGE</td>
+                        <td id="memoryUsage">0MB/0MB</td>
+                    </tr>
+                    <tr>
+                        <td>API RESPONSE</td>
+                        <td id="apiResponse">0ms</td>
+                    </tr>
+                    <tr>
+                        <td>MODEL TEMP</td>
+                        <td id="modelTemp">0°C</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section class="terminal-panel">
+            <div class="panel-header">
+                <h2>ERROR LOGS</h2>
+                <div class="icon">⚠️</div>
+            </div>
+            
+            <div class="log-container">
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:45:23]</span>
+                    <span class="log-message log-error">API timeout - /v1/completions</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:42:11]</span>
+                    <span class="log-message log-warning">High memory usage detected</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:40:05]</span>
+                    <span class="log-message log-info">User login: Shadow2563</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:38:56]</span>
+                    <span class="log-message log-success">Model updated to v2.3.5</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="terminal-panel">
+            <div class="panel-header">
+                <h2>KNOWLEDGE UPDATES</h2>
+                <div class="icon">🧠</div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>TIMESTAMP</th>
+                        <th>TOPIC</th>
+                        <th>ENTRIES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-11-15</td>
+                        <td>Quantum Computing</td>
+                        <td>+142</td>
+                    </tr>
+                    <tr>
+                        <td>2023-11-14</td>
+                        <td>Neural Networks</td>
+                        <td>+87</td>
+                    </tr>
+                    <tr>
+                        <td>2023-11-13</td>
+                        <td>Cybersecurity</td>
+                        <td>+203</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        // DATA STREAM ANIMATION
+        function createDataStream() {
+            const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+            const stream = document.getElementById('dataStream');
+            
+            setInterval(() => {
+                const dataBit = document.createElement('div');
+                dataBit.className = 'data-bit';
+                dataBit.textContent = chars.charAt(Math.floor(Math.random() * chars.length));
+                dataBit.style.left = Math.random() * 100 + 'vw';
+                dataBit.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                stream.appendChild(dataBit);
+                
+                setTimeout(() => {
+                    dataBit.remove();
+                }, 8000);
+            }, 100);
+        }
+
+        // UPTIME COUNTER
+        function startUptimeCounter() {
+            let seconds = 0;
+            setInterval(() => {
+                seconds++;
+                const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+                const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('uptimeCounter').textContent = `UPTIME: ${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // SYSTEM METRICS SIMULATION
+        function simulateSystemMetrics() {
+            setInterval(() => {
+                // CPU
+                const cpuLoad = Math.floor(Math.random() * 30) + 10;
+                document.getElementById('cpuLoad').textContent = `${cpuLoad}%`;
+                
+                // Memory
+                const usedMem = Math.floor(Math.random() * 8000) + 2000;
+                document.getElementById('memoryUsage').textContent = `${usedMem}MB/16GB`;
+                
+                // API
+                const apiTime = Math.floor(Math.random() * 40) + 10;
+                document.getElementById('apiResponse').textContent = `${apiTime}ms`;
+                
+                // Temp
+                const temp = Math.floor(Math.random() * 15) + 45;
+                document.getElementById('modelTemp').textContent = `${temp}°C`;
+            }, 2000);
+        }
+
+        // USER DATA
+        function loadUserStats() {
+            const users = JSON.parse(localStorage.getItem('shadowAIUsers')) || [];
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('activeUsers').textContent = Math.floor(users.length * 0.3);
+            document.getElementById('newUsers').textContent = Math.floor(users.length * 0.1);
+            document.getElementById('avgSession').textContent = `${Math.floor(Math.random() * 15) + 5}m`;
+            
+            // Populate user table
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            
+            users.slice(0, 5).forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${new Date().toLocaleTimeString()}</td>
+                    <td>${Math.floor(Math.random() * 10) + 1}</td>
+                    <td style="color: var(--matrix-green)">ACTIVE</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize everything
+        window.onload = function() {
+            createDataStream();
+            startUptimeCounter();
+            simulateSystemMetrics();
+            loadUserStats();
+            
+            // Refresh user data every 10 seconds
+            setInterval(loadUserStats, 10000);
+        };
+    </script>
+</body>
+</html>
