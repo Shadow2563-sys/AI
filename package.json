@@ -1,7 +1,7 @@
 {
-  "name": "your-ai-project",
+  "name": "Shadow",
   "version": "1.0.0",
-  "type": "module", // If using ES6 modules
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "train": "node scripts/train-model.js", 
