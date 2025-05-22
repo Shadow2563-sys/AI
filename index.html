@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHADOW AI | ACCESS TERMINAL</title>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <style>
+        :root {
+            --neon-cyan: #0ff;
+            --neon-purple: #f0f;
+            --matrix-green: #0f0;
+            --admin-red: #f33;
+        }
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            animation: gridScroll 20s linear infinite;
+        }
+
+        @keyframes gridScroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        #circuit-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0,50 L100,50 M50,0 L50,100" stroke="rgba(0,255,255,0.05)" stroke-width="0.5"/></svg>');
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .auth-box {
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 
+                0 0 15px rgba(0, 255, 255, 0.5),
+                inset 0 0 15px rgba(0, 255, 255, 0.3);
+            padding: 2rem;
+            width: 320px;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-box::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                var(--neon-cyan) 50%,
+                transparent 55%
+            );
+            opacity: 0.1;
+            animation: shine 4s infinite;
+            z-index: -1;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg) translate(-50%, -50%); }
+            100% { transform: rotate(360deg) translate(-50%, -50%); }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 5px var(--neon-cyan),
+                0 0 10px rgba(0, 255, 255, 0.5);
+            position: relative;
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 50%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--neon-cyan), transparent);
+            margin: 10px auto;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            background: rgba(0, 20, 30, 0.7);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.2), rgba(0, 100, 255, 0.2));
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.4), rgba(0, 100, 255, 0.4));
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        button::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 45%,
+                var(--neon-cyan) 50%,
+                transparent 55%
+            );
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        button:hover::after {
+            opacity: 0.3;
+            animation: shine 2s infinite;
+        }
+
+        .toggle-auth, .forgot-password {
+            text-align: center;
+            margin: 10px 0;
+            color: rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .toggle-auth:hover, .forgot-password:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        .error {
+            color: #f55;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 5px;
+            text-shadow: 0 0 3px #f00;
+        }
+
+        .hidden { display: none; }
+
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 var(--neon-purple); }
+            20% { text-shadow: -2px 0 var(--matrix-green); }
+            40%, 100% { text-shadow: none; }
+        }
+
+        .glitch {
+            animation: glitch 5s infinite;
+        }
+
+        .recovery-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .recovery-box {
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--neon-purple);
+            width: 320px;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            position: relative;
+        }
+
+        .recovery-step {
+            display: none;
+        }
+
+        .recovery-step.active {
+            display: block;
+        }
+
+        .close-recovery {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--neon-purple);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-bg"></div>
+    <div id="circuit-overlay"></div>
+
+    <div class="auth-box">
+        <h1 class="glitch">SYSTEM <span style="color: var(--neon-purple)">//</span> ACCESS</h1>
+        
+        <form id="signupForm">
+            <input type="text" id="signupUsername" placeholder="USERNAME" required>
+            <input type="email" id="signupEmail" placeholder="GOOGLE_ID@DOMAIN" required>
+            <input type="password" id="signupPassword" placeholder="PASSWORD" required>
+            <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+            <button type="submit"><span>SIGN UP</span></button>
+            <p class="toggle-auth" onclick="toggleForms()">[ SWITCH TO LOGIN ]</p>
+            <p id="signupError" class="error"></p>
+        </form>
+        
+        <form id="loginForm" class="hidden">
+            <input type="text" id="loginUsername" placeholder="USERNAME" required>
+            <input type="password" id="loginPassword" placeholder="PASSWORD" required>
+            <button type="submit"><span>LOGIN</span></button>
+            <p class="toggle-auth" onclick="toggleForms()">[ SWITCH TO SIGNUP ]</p>
+            <p class="forgot-password" onclick="openRecovery()">[ FORGOT PASSWORD? ]</p>
+            <p id="loginError" class="error"></p>
+        </form>
+    </div>
+
+    <div class="recovery-modal" id="recoveryModal">
+        <div class="recovery-box">
+            <span class="close-recovery" onclick="closeRecovery()">✕</span>
+            
+            <div class="recovery-step active" id="step1">
+                <h2>PASSWORD RECOVERY</h2>
+                <p>Enter your registered Gmail:</p>
+                <input type="email" id="recoveryEmail" placeholder="GOOGLE_ID@DOMAIN">
+                <button onclick="verifyEmail()">SEND OTP</button>
+                <p id="recoveryError1" class="error"></p>
+            </div>
+            
+            <div class="recovery-step" id="step2">
+                <h2>OTP VERIFICATION</h2>
+                <p>Enter the 6-digit code sent to your email:</p>
+                <input type="text" id="recoveryOTP" placeholder="000000" maxlength="6">
+                <button onclick="verifyOTP()">VERIFY</button>
+                <p id="recoveryError2" class="error"></p>
+            </div>
+            
+            <div class="recovery-step" id="step3">
+                <h2>NEW PASSWORD</h2>
+                <input type="password" id="newPassword" placeholder="NEW PASSWORD">
+                <input type="password" id="confirmPassword" placeholder="CONFIRM PASSWORD">
+                <button onclick="updatePassword()">UPDATE</button>
+                <p id="recoveryError3" class="error"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize admin user
+        if (!localStorage.getItem('shadowAIUsers')) {
+            localStorage.setItem('shadowAIUsers', JSON.stringify([
+                { username: "Shadow2563", email: "admin@shadowai.com", password: "Shadow2563" }
+            ]));
+        }
+
+        // Form toggle
+        function toggleForms() {
+            document.getElementById('signupForm').classList.toggle('hidden');
+            document.getElementById('loginForm').classList.toggle('hidden');
+        }
+
+        // User management
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('shadowAIUsers')) || [];
+        }
+
+        function saveUser(username, email, password) {
+            const users = getUsers();
+            users.push({ username, email, password });
+            localStorage.setItem('shadowAIUsers', JSON.stringify(users));
+        }
+
+        // Signup
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const errorElement = document.getElementById('signupError');
+
+            if (!email.endsWith('@gmail.com')) {
+                errorElement.textContent = "ERR: GOOGLE ID REQUIRED";
+                return;
+            }
+
+            const users = getUsers();
+            if (users.some(user => user.username === username)) {
+                errorElement.textContent = "ERR: USERNAME TAKEN";
+                return;
+            }
+            if (users.some(user => user.email === email)) {
+                errorElement.textContent = "ERR: ID REGISTERED";
+                return;
+            }
+
+            saveUser(username, email, password);
+            alert("ACCESS GRANTED\nREDIRECTING...");
+            window.location.href = "chat.html?username=" + username;
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorElement = document.getElementById('loginError');
+
+            if (username === "Shadow2563" && password === "Shadow2563") {
+                window.location.href = "admin.html";
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (!user) {
+                errorElement.textContent = "ERR: INVALID CREDENTIALS";
+                return;
+            }
+
+            window.location.href = "chat.html?username=" + username;
+        });
+
+        // Password recovery
+        let currentRecoveryEmail = "";
+        let generatedOTP = "";
+
+        function openRecovery() {
+            document.getElementById('recoveryModal').style.opacity = "1";
+            document.getElementById('recoveryModal').style.pointerEvents = "auto";
+            resetRecoverySteps();
+        }
+
+        function closeRecovery() {
+            document.getElementById('recoveryModal').style.opacity = "0";
+            document.getElementById('recoveryModal').style.pointerEvents = "none";
+        }
+
+        function resetRecoverySteps() {
+            document.querySelectorAll('.recovery-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('step1').classList.add('active');
+        }
+
+        function verifyEmail() {
+            const email = document.getElementById('recoveryEmail').value;
+            const users = getUsers();
+            const user = users.find(u => u.email === email);
+
+            if (!user) {
+                document.getElementById('recoveryError1').textContent = "ERR: EMAIL NOT FOUND";
+                return;
+            }
+
+            currentRecoveryEmail = email;
+            generatedOTP = Math.floor(100000 + Math.random() * 900000);
+            alert(`SIMULATED OTP: ${generatedOTP}\n(In production, this would be sent via email)`);
+            
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function verifyOTP() {
+            const enteredOTP = document.getElementById('recoveryOTP').value;
+            
+            if (enteredOTP !== generatedOTP.toString()) {
+                document.getElementById('recoveryError2').textContent = "ERR: INVALID OTP";
+                return;
+            }
+
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+        }
+
+        function updatePassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            
+            if (newPass !== confirmPass) {
+                document.getElementById('recoveryError3').textContent = "ERR: PASSWORDS DON'T MATCH";
+                return;
+            }
+
+            const users = getUsers();
+            const updatedUsers = users.map(user => {
+                if (user.email === currentRecoveryEmail) {
+                    return { ...user, password: newPass };
+                }
+                return user;
+            });
+            
+            localStorage.setItem('shadowAIUsers', JSON.stringify(updatedUsers));
+            alert("PASSWORD UPDATED SUCCESSFULLY");
+            closeRecovery();
+        }
+    </script>
+</body>
+</html>
