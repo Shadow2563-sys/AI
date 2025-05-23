@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +11,7 @@
             --matrix-green: #00ff2b;
             --hacker-orange: #ff8c00;
             --cyber-purple: #8a2be2;
+            --critical-red: #ff4d4d;
         }
         
         body {
@@ -19,6 +21,21 @@
             font-family: 'Courier New', monospace;
             overflow-x: hidden;
             line-height: 1.6;
+        }
+
+        /* Cyberpunk background effects */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 247, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            animation: gridPulse 30s infinite alternate;
         }
 
         .scanlines {
@@ -34,27 +51,8 @@
                 );
             background-size: 100% 2px;
             pointer-events: none;
-            z-index: 100;
+            z-index: -1;
             animation: scanline 8s linear infinite;
-        }
-
-        @keyframes scanline {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 100%; }
-        }
-
-        .grid-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(rgba(0, 247, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 247, 255, 0.02) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -2;
-            animation: gridPulse 30s infinite alternate;
         }
 
         @keyframes gridPulse {
@@ -62,21 +60,14 @@
             100% { opacity: 0.7; }
         }
 
-        .data-stream {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(transparent 90%, rgba(0, 247, 255, 0.1) 100%);
-            z-index: -1;
-            pointer-events: none;
-            overflow: hidden;
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
         }
 
+        /* Header */
         .terminal-header {
-            background: rgba(0, 10, 20, 0.8);
+            background: rgba(0, 10, 20, 0.9);
             border-bottom: 1px solid var(--neon-blue);
             padding: 1rem 2rem;
             display: flex;
@@ -94,7 +85,6 @@
             text-shadow: 
                 0 0 10px var(--neon-blue),
                 0 0 20px rgba(0, 247, 255, 0.5);
-            position: relative;
         }
 
         .header-stats {
@@ -112,7 +102,7 @@
             align-items: center;
         }
 
-        .stat-pill::before {
+        .stat-pill.online::before {
             content: "◉";
             color: var(--matrix-green);
             margin-right: 8px;
@@ -120,11 +110,18 @@
             animation: pulse 2s infinite;
         }
 
+        .stat-pill.warning::before {
+            content: "⚠";
+            color: var(--hacker-orange);
+            margin-right: 8px;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
         }
 
+        /* Dashboard Layout */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -134,6 +131,7 @@
             z-index: 1;
         }
 
+        /* Panel Styles */
         .terminal-panel {
             background: rgba(0, 5, 10, 0.85);
             border: 1px solid var(--neon-blue);
@@ -163,64 +161,55 @@
             text-shadow: 0 0 5px rgba(0, 247, 255, 0.5);
         }
 
-        .user-activity {
-            grid-column: span 2;
+        .panel-header .icon {
+            font-size: 1.2rem;
         }
 
-        .user-metrics {
+        /* Deployment Info Panel */
+        .deployment-info {
+            grid-column: span 2;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
-            margin-bottom: 20px;
         }
 
-        .metric-card {
+        .deployment-card {
             background: rgba(0, 20, 40, 0.5);
             border: 1px solid rgba(0, 247, 255, 0.2);
             padding: 15px;
             border-radius: 4px;
-            text-align: center;
         }
 
-        .metric-value {
-            font-size: 2rem;
+        .deployment-value {
+            font-size: 1.5rem;
             font-weight: bold;
             color: white;
             margin: 10px 0;
             text-shadow: 0 0 10px var(--neon-blue);
         }
 
-        .metric-label {
+        .deployment-label {
             font-size: 0.8rem;
             color: rgba(0, 247, 255, 0.7);
         }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
-
-        .data-table th {
-            text-align: left;
-            padding: 10px;
+        /* System Health Components */
+        .health-indicator {
+            height: 10px;
             background: rgba(0, 247, 255, 0.1);
-            color: var(--neon-blue);
-            font-weight: 300;
-            letter-spacing: 1px;
-            border-bottom: 1px solid rgba(0, 247, 255, 0.3);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
         }
 
-        .data-table td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(0, 247, 255, 0.1);
+        .health-bar {
+            height: 100%;
+            background: var(--matrix-green);
+            width: 0%;
+            transition: width 0.5s ease;
         }
 
-        .data-table tr:hover {
-            background: rgba(0, 247, 255, 0.05);
-        }
-
+        /* Logs */
         .log-container {
             max-height: 300px;
             overflow-y: auto;
@@ -244,18 +233,14 @@
             flex-grow: 1;
         }
 
-        .log-error { color: #ff4d4d; }
+        .log-error { color: var(--critical-red); }
         .log-warning { color: var(--hacker-orange); }
         .log-info { color: var(--neon-blue); }
         .log-success { color: var(--matrix-green); }
 
-        .system-monitor {
-            height: 200px;
-            position: relative;
-        }
-
+        /* Responsive */
         @media (max-width: 1200px) {
-            .user-metrics {
+            .deployment-info {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
@@ -264,250 +249,403 @@
             .dashboard {
                 grid-template-columns: 1fr;
             }
-            .user-activity {
+            .deployment-info {
                 grid-column: span 1;
-            }
-            .user-metrics {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
-    <div class="data-stream" id="dataStream"></div>
+    <div class="cyber-grid"></div>
     <div class="scanlines"></div>
 
     <header class="terminal-header">
-        <h1>SHADOW AI :: ADMIN TERMINAL</h1>
+        <h1>SHADOW AI :: ADMINISTRATION TERMINAL</h1>
         <div class="header-stats">
-            <div class="stat-pill">SYSTEM ONLINE</div>
-            <div class="stat-pill" id="uptimeCounter">UPTIME: 00:00:00</div>
+            <div class="stat-pill online" id="systemStatus">SYSTEM ONLINE</div>
+            <div class="stat-pill" id="deploymentTime">DEPLOYED: --/--/---- --:--:--</div>
+            <div class="stat-pill" id="uptimeCounter">UPTIME: 00:00:00:00</div>
             <button class="stat-pill" onclick="location.href='index.html'">LOGOUT</button>
         </div>
     </header>
 
     <main class="dashboard">
-        <section class="terminal-panel user-activity">
-            <div class="panel-header">
-                <h2>USER ACTIVITY MONITOR</h2>
-                <div class="icon">👥</div>
+        <!-- Deployment Information -->
+        <section class="terminal-panel deployment-info">
+            <div class="deployment-card">
+                <div class="deployment-label">INITIAL DEPLOYMENT</div>
+                <div class="deployment-value" id="initialDeploy">05-23-2024 14:30:45 UTC</div>
+                <div class="health-indicator">
+                    <div class="health-bar" style="width: 100%"></div>
+                </div>
             </div>
             
-            <div class="user-metrics">
-                <div class="metric-card">
-                    <div class="metric-label">TOTAL USERS</div>
-                    <div class="metric-value" id="totalUsers">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">ACTIVE TODAY</div>
-                    <div class="metric-value" id="activeUsers">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">NEW (24H)</div>
-                    <div class="metric-value" id="newUsers">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">AVG SESSION</div>
-                    <div class="metric-value" id="avgSession">0m</div>
+            <div class="deployment-card">
+                <div class="deployment-label">LAST UPDATE</div>
+                <div class="deployment-value" id="lastUpdate">v2.3.5 - 2023-11-20</div>
+                <div class="health-indicator">
+                    <div class="health-bar" style="width: 100%"></div>
                 </div>
             </div>
+            
+            <div class="deployment-card">
+                <div class="deployment-label">TOTAL UPTIME</div>
+                <div class="deployment-value" id="totalUptime">14d 7h 22m</div>
+                <div class="health-indicator">
+                    <div class="health-bar" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="deployment-card">
+                <div class="deployment-label">CURRENT SESSION</div>
+                <div class="deployment-value" id="currentSession">3h 45m</div>
+                <div class="health-indicator">
+                    <div class="health-bar" style="width: 100%"></div>
+                </div>
+            </div>
+        </section>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>USERNAME</th>
-                        <th>LAST ACTIVE</th>
-                        <th>SESSIONS</th>
-                        <th>STATUS</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody">
-                    <!-- Filled by JavaScript -->
-                </tbody>
+        <!-- System Diagnostics -->
+        <section class="terminal-panel">
+            <div class="panel-header">
+                <h2>SYSTEM DIAGNOSTICS</h2>
+                <div class="icon">🖥️</div>
+            </div>
+            
+            <table style="width: 100%;">
+                <tr>
+                    <td>API RESPONSE TIME</td>
+                    <td id="apiResponse">12ms</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="apiHealth" style="width: 95%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MODEL LATENCY</td>
+                    <td id="modelLatency">28ms</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="modelHealth" style="width: 82%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MEMORY USAGE</td>
+                    <td id="memoryUsage">4.2GB/16GB</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="memoryHealth" style="width: 26%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>CPU LOAD</td>
+                    <td id="cpuLoad">18%</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="cpuHealth" style="width: 18%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>GPU UTILIZATION</td>
+                    <td id="gpuUsage">32%</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="gpuHealth" style="width: 32%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
             </table>
         </section>
 
+        <!-- Activity Log -->
         <section class="terminal-panel">
             <div class="panel-header">
-                <h2>SYSTEM HEALTH</h2>
-                <div class="icon">❤️</div>
+                <h2>SYSTEM ACTIVITY LOG</h2>
+                <div class="icon">📜</div>
             </div>
             
-            <div class="system-monitor">
-                <div class="monitor-graph" id="cpuGraph"></div>
-            </div>
-            
-            <div class="system-stats">
-                <table class="data-table">
-                    <tr>
-                        <td>CPU LOAD</td>
-                        <td id="cpuLoad">0%</td>
-                    </tr>
-                    <tr>
-                        <td>MEMORY USAGE</td>
-                        <td id="memoryUsage">0MB/0MB</td>
-                    </tr>
-                    <tr>
-                        <td>API RESPONSE</td>
-                        <td id="apiResponse">0ms</td>
-                    </tr>
-                    <tr>
-                        <td>MODEL TEMP</td>
-                        <td id="modelTemp">0°C</td>
-                    </tr>
-                </table>
+            <div class="log-container" id="systemLog">
+                <!-- Filled by JavaScript -->
             </div>
         </section>
 
+        <!-- Hardware Monitoring -->
         <section class="terminal-panel">
             <div class="panel-header">
-                <h2>ERROR LOGS</h2>
-                <div class="icon">⚠️</div>
+                <h2>HARDWARE TELEMETRY</h2>
+                <div class="icon">🌡️</div>
             </div>
             
-            <div class="log-container">
-                <div class="log-entry">
-                    <span class="log-timestamp">[12:45:23]</span>
-                    <span class="log-message log-error">API timeout - /v1/completions</span>
-                </div>
-                <div class="log-entry">
-                    <span class="log-timestamp">[12:42:11]</span>
-                    <span class="log-message log-warning">High memory usage detected</span>
-                </div>
-                <div class="log-entry">
-                    <span class="log-timestamp">[12:40:05]</span>
-                    <span class="log-message log-info">User login: Shadow2563</span>
-                </div>
-                <div class="log-entry">
-                    <span class="log-timestamp">[12:38:56]</span>
-                    <span class="log-message log-success">Model updated to v2.3.5</span>
-                </div>
-            </div>
+            <table style="width: 100%;">
+                <tr>
+                    <td>CPU TEMPERATURE</td>
+                    <td id="cpuTemp">48°C</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="cpuTempHealth" style="width: 48%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>GPU TEMPERATURE</td>
+                    <td id="gpuTemp">62°C</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="gpuTempHealth" style="width: 62%; background: var(--hacker-orange)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>NETWORK THROUGHPUT</td>
+                    <td id="networkSpeed">124Mbps</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="networkHealth" style="width: 62%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>STORAGE USAGE</td>
+                    <td id="storageUsage">1.2TB/2TB</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" id="storageHealth" style="width: 60%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </section>
 
+        <!-- Model Performance -->
         <section class="terminal-panel">
             <div class="panel-header">
-                <h2>KNOWLEDGE UPDATES</h2>
+                <h2>MODEL PERFORMANCE</h2>
                 <div class="icon">🧠</div>
             </div>
             
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>TIMESTAMP</th>
-                        <th>TOPIC</th>
-                        <th>ENTRIES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2023-11-15</td>
-                        <td>Quantum Computing</td>
-                        <td>+142</td>
-                    </tr>
-                    <tr>
-                        <td>2023-11-14</td>
-                        <td>Neural Networks</td>
-                        <td>+87</td>
-                    </tr>
-                    <tr>
-                        <td>2023-11-13</td>
-                        <td>Cybersecurity</td>
-                        <td>+203</td>
-                    </tr>
-                </tbody>
+            <table style="width: 100%;">
+                <tr>
+                    <td>REQUESTS (24H)</td>
+                    <td id="requests24h">14,892</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" style="width: 85%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AVG RESPONSE TIME</td>
+                    <td id="avgResponse">320ms</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" style="width: 92%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ACCURACY RATE</td>
+                    <td id="accuracyRate">98.7%</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" style="width: 98%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>TOKENS PROCESSED</td>
+                    <td id="tokensProcessed">14.2M</td>
+                    <td>
+                        <div class="health-indicator">
+                            <div class="health-bar" style="width: 71%; background: var(--matrix-green)"></div>
+                        </div>
+                    </td>
+                </tr>
             </table>
         </section>
     </main>
 
     <script>
-        // DATA STREAM ANIMATION
-        function createDataStream() {
-            const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-            const stream = document.getElementById('dataStream');
+        // Deployment Information
+        const deploymentData = {
+            initialDeploy: new Date("2024-23-15T14:30:45Z"),
+            lastUpdate: {
+                version: "v2.3.5",
+                date: new Date("2024-23-20T09:15:22Z")
+            },
+            totalUptime: { // in milliseconds
+                days: 14,
+                hours: 7,
+                minutes: 22
+            },
+            currentSessionStart: new Date()
+        };
+
+        // System Logs
+        const systemLogs = [
+            { time: new Date(), type: "info", message: "System diagnostics completed" },
+            { time: new Date(Date.now() - 300000), type: "warning", message: "API response time threshold exceeded" },
+            { time: new Date(Date.now() - 900000), type: "success", message: "Security scan completed - no vulnerabilities found" },
+            { time: new Date(Date.now() - 1800000), type: "info", message: "User session started: admin" },
+            { time: new Date(Date.now() - 3600000), type: "error", message: "Database connection timeout (retrying)" },
+            { time: new Date(Date.now() - 7200000), type: "success", message: "Backup completed successfully" }
+        ];
+
+        // Initialize Dashboard
+        function initDashboard() {
+            // Deployment Info
+            document.getElementById('initialDeploy').textContent = 
+                deploymentData.initialDeploy.toISOString().replace('T', ' ').replace('.000Z', ' UTC');
             
-            setInterval(() => {
-                const dataBit = document.createElement('div');
-                dataBit.className = 'data-bit';
-                dataBit.textContent = chars.charAt(Math.floor(Math.random() * chars.length));
-                dataBit.style.left = Math.random() * 100 + 'vw';
-                dataBit.style.animationDuration = (Math.random() * 5 + 3) + 's';
-                stream.appendChild(dataBit);
-                
-                setTimeout(() => {
-                    dataBit.remove();
-                }, 8000);
-            }, 100);
+            document.getElementById('lastUpdate').textContent = 
+                `${deploymentData.lastUpdate.version} - ${deploymentData.lastUpdate.date.toISOString().split('T')[0]}`;
+            
+            document.getElementById('totalUptime').textContent = 
+                `${deploymentData.totalUptime.days}d ${deploymentData.totalUptime.hours}h ${deploymentData.totalUptime.minutes}m`;
+            
+            updateDeploymentTime();
+            startUptimeCounter();
+            renderSystemLogs();
+            simulateTelemetry();
         }
 
-        // UPTIME COUNTER
+        // Update Deployment Time
+        function updateDeploymentTime() {
+            const now = new Date();
+            document.getElementById('deploymentTime').textContent = 
+                `DEPLOYED: ${now.toISOString().split('T')[0]} ${now.toTimeString().split(' ')[0]}`;
+        }
+
+        // Uptime Counter
         function startUptimeCounter() {
             let seconds = 0;
             setInterval(() => {
                 seconds++;
-                const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+                const days = Math.floor(seconds / 86400);
+                const hrs = Math.floor((seconds % 86400) / 3600).toString().padStart(2, '0');
                 const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
                 const secs = (seconds % 60).toString().padStart(2, '0');
-                document.getElementById('uptimeCounter').textContent = `UPTIME: ${hrs}:${mins}:${secs}`;
+                document.getElementById('uptimeCounter').textContent = `UPTIME: ${days}d ${hrs}:${mins}:${secs}`;
+                
+                // Update current session time
+                const sessionSeconds = Math.floor((new Date() - deploymentData.currentSessionStart) / 1000);
+                const sessionHrs = Math.floor(sessionSeconds / 3600);
+                const sessionMins = Math.floor((sessionSeconds % 3600) / 60);
+                document.getElementById('currentSession').textContent = `${sessionHrs}h ${sessionMins}m`;
             }, 1000);
         }
 
-        // SYSTEM METRICS SIMULATION
-        function simulateSystemMetrics() {
-            setInterval(() => {
-                // CPU
-                const cpuLoad = Math.floor(Math.random() * 30) + 10;
-                document.getElementById('cpuLoad').textContent = `${cpuLoad}%`;
-                
-                // Memory
-                const usedMem = Math.floor(Math.random() * 8000) + 2000;
-                document.getElementById('memoryUsage').textContent = `${usedMem}MB/16GB`;
-                
-                // API
-                const apiTime = Math.floor(Math.random() * 40) + 10;
-                document.getElementById('apiResponse').textContent = `${apiTime}ms`;
-                
-                // Temp
-                const temp = Math.floor(Math.random() * 15) + 45;
-                document.getElementById('modelTemp').textContent = `${temp}°C`;
-            }, 2000);
-        }
-
-        // USER DATA
-        function loadUserStats() {
-            const users = JSON.parse(localStorage.getItem('shadowAIUsers')) || [];
-            document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('activeUsers').textContent = Math.floor(users.length * 0.3);
-            document.getElementById('newUsers').textContent = Math.floor(users.length * 0.1);
-            document.getElementById('avgSession').textContent = `${Math.floor(Math.random() * 15) + 5}m`;
+        // System Logs
+        function renderSystemLogs() {
+            const logContainer = document.getElementById('systemLog');
+            logContainer.innerHTML = '';
             
-            // Populate user table
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '';
-            
-            users.slice(0, 5).forEach(user => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${user.username}</td>
-                    <td>${new Date().toLocaleTimeString()}</td>
-                    <td>${Math.floor(Math.random() * 10) + 1}</td>
-                    <td style="color: var(--matrix-green)">ACTIVE</td>
-                `;
-                tbody.appendChild(tr);
+            systemLogs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                
+                const timestamp = document.createElement('span');
+                timestamp.className = 'log-timestamp';
+                timestamp.textContent = `[${log.time.toTimeString().split(' ')[0]}]`;
+                
+                const message = document.createElement('span');
+                message.className = `log-message log-${log.type}`;
+                message.textContent = log.message;
+                
+                logEntry.appendChild(timestamp);
+                logEntry.appendChild(message);
+                logContainer.appendChild(logEntry);
             });
         }
 
-        // Initialize everything
-        window.onload = function() {
-            createDataStream();
-            startUptimeCounter();
-            simulateSystemMetrics();
-            loadUserStats();
-            
-            // Refresh user data every 10 seconds
-            setInterval(loadUserStats, 10000);
-        };
+        // Simulate Telemetry Data
+        function simulateTelemetry() {
+            setInterval(() => {
+                // API Response
+                const apiResponse = Math.floor(Math.random() * 30) + 10;
+                document.getElementById('apiResponse').textContent = `${apiResponse}ms`;
+                document.getElementById('apiHealth').style.width = `${100 - apiResponse}%`;
+                document.getElementById('apiHealth').style.background = 
+                    apiResponse > 50 ? 'var(--critical-red)' : 'var(--matrix-green)';
+                
+                // Model Latency
+                const modelLatency = Math.floor(Math.random() * 50) + 20;
+                document.getElementById('modelLatency').textContent = `${modelLatency}ms`;
+                document.getElementById('modelHealth').style.width = `${100 - modelLatency}%`;
+                
+                // Memory Usage
+                const memoryUsed = (Math.random() * 2 + 3).toFixed(1);
+                document.getElementById('memoryUsage').textContent = `${memoryUsed}GB/16GB`;
+                const memoryPercent = (memoryUsed / 16 * 100).toFixed(0);
+                document.getElementById('memoryHealth').style.width = `${memoryPercent}%`;
+                document.getElementById('memoryHealth').style.background = 
+                    memoryPercent > 80 ? 'var(--critical-red)' : 
+                    memoryPercent > 60 ? 'var(--hacker-orange)' : 'var(--matrix-green)';
+                
+                // CPU Load
+                const cpuLoad = Math.floor(Math.random() * 30) + 10;
+                document.getElementById('cpuLoad').textContent = `${cpuLoad}%`;
+                document.getElementById('cpuHealth').style.width = `${cpuLoad}%`;
+                document.getElementById('cpuHealth').style.background = 
+                    cpuLoad > 80 ? 'var(--critical-red)' : 
+                    cpuLoad > 60 ? 'var(--hacker-orange)' : 'var(--matrix-green)';
+                
+                // GPU Utilization
+                const gpuUsage = Math.floor(Math.random() * 40) + 20;
+                document.getElementById('gpuUsage').textContent = `${gpuUsage}%`;
+                document.getElementById('gpuHealth').style.width = `${gpuUsage}%`;
+                
+                // Temperatures
+                const cpuTemp = Math.floor(Math.random() * 15) + 45;
+                document.getElementById('cpuTemp').textContent = `${cpuTemp}°C`;
+                document.getElementById('cpuTempHealth').style.width = `${cpuTemp}%`;
+                document.getElementById('cpuTempHealth').style.background = 
+                    cpuTemp > 80 ? 'var(--critical-red)' : 
+                    cpuTemp > 70 ? 'var(--hacker-orange)' : 'var(--matrix-green)';
+                
+                const gpuTemp = Math.floor(Math.random() * 20) + 55;
+                document.getElementById('gpuTemp').textContent = `${gpuTemp}°C`;
+                document.getElementById('gpuTempHealth').style.width = `${gpuTemp}%`;
+                document.getElementById('gpuTempHealth').style.background = 
+                    gpuTemp > 85 ? 'var(--critical-red)' : 
+                    gpuTemp > 75 ? 'var(--hacker-orange)' : 'var(--matrix-green)';
+                
+                // Network
+                const networkSpeed = Math.floor(Math.random() * 100) + 50;
+                document.getElementById('networkSpeed').textContent = `${networkSpeed}Mbps`;
+                document.getElementById('networkHealth').style.width = `${networkSpeed}%`;
+                
+                // Add new log entry occasionally
+                if (Math.random() > 0.8) {
+                    const logTypes = ["info", "warning", "error", "success"];
+                    const logMessages = [
+                        "API request processed",
+                        "Memory optimization routine executed",
+                        "Security scan initiated",
+                        "Database connection established",
+                        "Model inference completed",
+                        "System check passed"
+                    ];
+                    
+                    const newLog = {
+                        time: new Date(),
+                        type: logTypes[Math.floor(Math.random() * logTypes.length)],
+                        message: logMessages[Math.floor(Math.random() * logMessages.length)]
+                    };
+                    
+                    systemLogs.unshift(newLog);
+                    if (systemLogs.length > 20) systemLogs.pop();
+                    renderSystemLogs();
+                }
+            }, 2000);
+        }
+
+        // Initialize on load
+        window.onload = initDashboard;
     </script>
 </body>
 </html>
